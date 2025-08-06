@@ -12,7 +12,7 @@ class WebToMarkdown:
     def downloadUrl(
             self, 
             url : str,
-            outputFolder : str = 'WebOutput',
+            outputFolder : str = 'output/WebOutput',
             fileName : str = f'{date.today()}.md'
         ) -> str | None:
 

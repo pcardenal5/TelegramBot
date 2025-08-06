@@ -12,7 +12,7 @@ class YoutubeDownloader:
     def downloadYoutubeVideo(
             self, 
             url : str,
-            outputFolder : str = 'YoutubeOutput'
+            outputFolder : str = 'output/YoutubeOutput'
         ) -> str | None:
 
         self.logs.info(f'Se ha recibido una petición de descarga con la URL {url}')
