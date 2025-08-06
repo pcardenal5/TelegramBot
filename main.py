@@ -1,5 +1,6 @@
 from src.LogService import LogService
 from src.WebToMarkdown import WebToMarkdown
+from src.YoutubeDownloader import YoutubeDownloader
 
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
@@ -13,6 +14,7 @@ if API_KEY is None:
 
 logger = LogService().log
 wtm = WebToMarkdown(logs = logger)
+ytd = YoutubeDownloader(logs = logger)
 
 async def commandStart(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
@@ -30,13 +32,14 @@ async def commandHelp(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         reply = '''Los comandos disponibles son los siguientes :
         - /start
         - /help
-        - /downloadUrl
+        - /downloadUrl <URL a descargar>
+        - /downloadYoutube <URL a descargar>
         '''.replace('    ','')
 
         await update.message.reply_text(reply,reply_markup=ForceReply(selective=True))
 
 
-async def commandDownloadUrl(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def commandDownloadWebpage(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Descargar la página web proporcionada por el usuario"""
         
     if update.message is None or update.message.text is None:
@@ -50,13 +53,30 @@ async def commandDownloadUrl(update: Update, context: ContextTypes.DEFAULT_TYPE)
     with open(file, 'rb') as outputFile:
         await update.message.reply_document(outputFile)
 
+async def commandDownloadYoutubeVideo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Descargar la página web proporcionada por el usuario"""
+        
+    if update.message is None or update.message.text is None:
+        return
+
+    url = update.message.text.replace('/downloadYoutube', '')
+
+    await update.message.reply_text(f'Petición recibida, comienza la descarga de {url}...')
+    file = ytd.downloadYoutubeVideo(url)
+    if file is None:
+        await update.message.reply_text('Error procesando la página web solicitada')
+        return
+
+    await update.message.reply_text(f'Se ha guardado el vídeo en la ruta {file}')
+
 
 application = Application.builder().token(API_KEY).build()
 
 # Añadir comandos
 application.add_handler(CommandHandler("start", commandStart))
 application.add_handler(CommandHandler("help", commandHelp))
-application.add_handler(CommandHandler("downloadUrl", commandDownloadUrl))
+application.add_handler(CommandHandler("downloadUrl", commandDownloadWebpage))
+application.add_handler(CommandHandler("downloadYoutube", commandDownloadYoutubeVideo))
 
 
 # Run the bot until the user presses Ctrl-C
