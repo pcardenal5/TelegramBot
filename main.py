@@ -41,11 +41,17 @@ async def commandHelp(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 async def commandDownloadWebpage(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Descargar la página web proporcionada por el usuario"""
-        
-    if update.message is None or update.message.text is None:
+
+    if (
+        update.message is None 
+        or update.message.text is None
+        or context.args is None
+        or len(context.args) != 1
+        ):
         return
 
-    file = wtm.downloadUrl(update.message.text.replace('/downloadUrl', ''))
+
+    file = wtm.downloadUrl(context.args[0])
     if file is None:
         await update.message.reply_text('Error procesando la página web solicitada')
         return
@@ -56,10 +62,16 @@ async def commandDownloadWebpage(update: Update, context: ContextTypes.DEFAULT_T
 async def commandDownloadYoutubeVideo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Descargar la página web proporcionada por el usuario"""
         
-    if update.message is None or update.message.text is None:
+    if (
+        update.message is None 
+        or update.message.text is None
+        or context.args is None
+        or len(context.args) != 1
+        ):
         return
 
-    url = update.message.text.replace('/downloadYoutube', '')
+
+    url = context.args[0]
 
     await update.message.reply_text(f'Petición recibida, comienza la descarga de {url}...')
     file = ytd.downloadYoutubeVideo(url)
@@ -75,8 +87,8 @@ application = Application.builder().token(API_KEY).build()
 # Añadir comandos
 application.add_handler(CommandHandler("start", commandStart))
 application.add_handler(CommandHandler("help", commandHelp))
-application.add_handler(CommandHandler("downloadUrl", commandDownloadWebpage))
-application.add_handler(CommandHandler("downloadYoutube", commandDownloadYoutubeVideo))
+application.add_handler(CommandHandler("downloadUrl", commandDownloadWebpage, has_args = True))
+application.add_handler(CommandHandler("downloadYoutube", commandDownloadYoutubeVideo, has_args = True))
 
 
 # Run the bot until the user presses Ctrl-C
