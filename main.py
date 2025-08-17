@@ -59,6 +59,7 @@ async def commandDownloadWebpage(update: Update, context: ContextTypes.DEFAULT_T
     with open(file, 'rb') as outputFile:
         await update.message.reply_document(outputFile)
 
+
 async def commandDownloadYoutubeVideo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Descargar la página web proporcionada por el usuario"""
         
@@ -82,7 +83,18 @@ async def commandDownloadYoutubeVideo(update: Update, context: ContextTypes.DEFA
     await update.message.reply_text(f'Se ha guardado el vídeo en la ruta {file}')
 
 
-application = Application.builder().token(API_KEY).build()
+async def post_init(application: Application) -> None:
+    await application.bot.set_my_commands([
+        # Los comandos deben ser todos en minúsculas
+        ('start',           'Empieza la conversación con el bot'),
+        ('help',            'Despliega mensaje de ayuda'),
+        ('downloadurl',     'Descarga la página web proporcionada en md.'),
+        ('downloadyoutube', 'Descarga el audio del vídeo proporcionado.')
+    ])
+
+
+
+application = Application.builder().token(API_KEY).post_init(post_init).build()
 
 # Añadir comandos
 application.add_handler(CommandHandler("start", commandStart))
